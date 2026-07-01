@@ -1,9 +1,8 @@
 ﻿"""Détection YOLO OBB + calcul d'un point cible à distance fixe du centre du 'rond'.
 
 Usage :
-    python detect.py                                  (ouvre des fenêtres de sélection)
-    python detect.py chemin/vers/best.pt               (ouvre une fenêtre pour l'image)
-    python detect.py chemin/vers/best.pt image.jpg      (aucune fenêtre)
+    python detect.py                  (ouvre une fenêtre pour choisir la photo, modèle fixe)
+    python detect.py chemin/image.jpg (aucune fenêtre)
 """
 
 import argparse
@@ -14,6 +13,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from ultralytics import YOLO
+
+DEFAULT_MODEL_PATH = r"C:\Users\abenzaid\OneDrive - Uniro\Bureau\modele detection\modele V3\best (3).pt"
 
 
 def pick_file(title, filetypes):
@@ -28,8 +29,8 @@ def pick_file(title, filetypes):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Détection YOLO OBB + calcul du point cible")
-    parser.add_argument("model", nargs="?", help="Chemin vers le modèle (best.pt). Si omis, une fenêtre s'ouvre pour le choisir.")
     parser.add_argument("image", nargs="?", help="Chemin vers l'image à tester. Si omis, une fenêtre s'ouvre pour la choisir.")
+    parser.add_argument("--model", default=DEFAULT_MODEL_PATH, help="Chemin vers le modèle (best.pt)")
     parser.add_argument("--dist", type=float, default=90.0, help="Distance du point depuis le centre du rond, vers la puce (px)")
     parser.add_argument("--conf", type=float, default=0.25, help="Seuil de confiance")
     parser.add_argument("--imgsz", type=int, default=1024, help="Taille d'image pour l'inférence")
@@ -41,10 +42,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    model_str = args.model or pick_file("Sélectionner le modèle (.pt)", [("Modèle YOLO", "*.pt")])
-    if not model_str:
-        sys.exit("Aucun modèle sélectionné.")
-    model_path = Path(model_str)
+    model_path = Path(args.model)
 
     image_str = args.image or pick_file("Sélectionner une image", [("Images", "*.jpg *.jpeg *.png *.bmp")])
     if not image_str:
