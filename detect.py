@@ -1,4 +1,4 @@
-"""Détection YOLO OBB + calcul d'un point cible à distance fixe du centre du 'rond'.
+ï»¿"""DÃ©tection YOLO OBB + calcul d'un point cible Ã  distance fixe du centre du 'rond'.
 
 Usage :
     python detect.py chemin/vers/best.pt chemin/vers/image.jpg
@@ -15,14 +15,14 @@ from ultralytics import YOLO
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Détection YOLO OBB + calcul du point cible")
-    parser.add_argument("model", help="Chemin vers le modèle (best.pt)")
-    parser.add_argument("image", help="Chemin vers l'image à tester")
+    parser = argparse.ArgumentParser(description="DÃ©tection YOLO OBB + calcul du point cible")
+    parser.add_argument("model", help="Chemin vers le modÃ¨le (best.pt)")
+    parser.add_argument("image", help="Chemin vers l'image Ã  tester")
     parser.add_argument("--dist", type=float, default=90.0, help="Distance du point depuis le centre du rond, vers la puce (px)")
     parser.add_argument("--conf", type=float, default=0.25, help="Seuil de confiance")
-    parser.add_argument("--imgsz", type=int, default=1024, help="Taille d'image pour l'inférence")
-    parser.add_argument("--output", help="Chemin de sauvegarde de l'image annotée (par défaut : <image>_annotated.<ext>)")
-    parser.add_argument("--no-show", action="store_true", help="Ne pas ouvrir de fenêtre d'affichage, juste sauvegarder")
+    parser.add_argument("--imgsz", type=int, default=1024, help="Taille d'image pour l'infÃ©rence")
+    parser.add_argument("--output", help="Chemin de sauvegarde de l'image annotÃ©e (par dÃ©faut : <image>_annotated.<ext>)")
+    parser.add_argument("--no-show", action="store_true", help="Ne pas ouvrir de fenÃªtre d'affichage, juste sauvegarder")
     return parser.parse_args()
 
 
@@ -32,12 +32,12 @@ def main():
     model_path = Path(args.model)
     img_path = Path(args.image)
     if not model_path.exists():
-        sys.exit(f"Modèle introuvable : {model_path}")
+        sys.exit(f"ModÃ¨le introuvable : {model_path}")
     if not img_path.exists():
         sys.exit(f"Image introuvable : {img_path}")
 
     model = YOLO(str(model_path))
-    print(f"Modèle chargé : {model_path}")
+    print(f"ModÃ¨le chargÃ© : {model_path}")
 
     r = model.predict(str(img_path), imgsz=args.imgsz, conf=args.conf, verbose=False)[0]
     img = r.plot(labels=False, conf=False)
@@ -85,11 +85,11 @@ def main():
 
         print(f"Point : x={x}, y={y} px | bas-de-puce: {scores['bas-de-puce']:.2f} | rond: {scores['rond']:.2f}")
     else:
-        print("Il faut détecter 'bas-de-puce' ET 'rond'. Détecté :", list(centres.keys()))
+        print("Il faut dÃ©tecter 'bas-de-puce' ET 'rond'. DÃ©tectÃ© :", list(centres.keys()))
 
     output_path = Path(args.output) if args.output else img_path.with_name(f"{img_path.stem}_annotated{img_path.suffix}")
     cv2.imwrite(str(output_path), img)
-    print(f"Image annotée sauvegardée : {output_path}")
+    print(f"Image annotÃ©e sauvegardÃ©e : {output_path}")
 
     if not args.no_show:
         plt.figure(figsize=(12, 12))
