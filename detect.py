@@ -1,7 +1,9 @@
 ﻿"""Détection YOLO OBB + calcul d'un point cible à distance fixe du centre du 'rond'.
 
 Usage :
-    python detect.py chemin/vers/best.pt chemin/vers/image.jpg
+    python detect.py                                  (ouvre des fenêtres de sélection)
+    python detect.py chemin/vers/best.pt               (ouvre une fenêtre pour l'image)
+    python detect.py chemin/vers/best.pt image.jpg      (aucune fenêtre)
 """
 
 import argparse
@@ -14,10 +16,20 @@ import matplotlib.pyplot as plt
 from ultralytics import YOLO
 
 
+def pick_file(title, filetypes):
+    import tkinter as tk
+    from tkinter import filedialog
+    root = tk.Tk()
+    root.withdraw()
+    path = filedialog.askopenfilename(title=title, filetypes=filetypes)
+    root.destroy()
+    return path
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Détection YOLO OBB + calcul du point cible")
-    parser.add_argument("model", help="Chemin vers le modèle (best.pt)")
-    parser.add_argument("image", help="Chemin vers l'image à tester")
+    parser.add_argument("model", nargs="?", help="Chemin vers le modèle (best.pt). Si omis, une fenêtre s'ouvre pour le choisir.")
+    parser.add_argument("image", nargs="?", help="Chemin vers l'image à tester. Si omis, une fenêtre s'ouvre pour la choisir.")
     parser.add_argument("--dist", type=float, default=90.0, help="Distance du point depuis le centre du rond, vers la puce (px)")
     parser.add_argument("--conf", type=float, default=0.25, help="Seuil de confiance")
     parser.add_argument("--imgsz", type=int, default=1024, help="Taille d'image pour l'inférence")
@@ -29,8 +41,16 @@ def parse_args():
 def main():
     args = parse_args()
 
-    model_path = Path(args.model)
-    img_path = Path(args.image)
+    model_str = args.model or pick_file("Sélectionner le modèle (.pt)", [("Modèle YOLO", "*.pt")])
+    if not model_str:
+        sys.exit("Aucun modèle sélectionné.")
+    model_path = Path(model_str)
+
+    image_str = args.image or pick_file("Sélectionner une image", [("Images", "*.jpg *.jpeg *.png *.bmp")])
+    if not image_str:
+        sys.exit("Aucune image sélectionnée.")
+    img_path = Path(image_str)
+
     if not model_path.exists():
         sys.exit(f"Modèle introuvable : {model_path}")
     if not img_path.exists():
